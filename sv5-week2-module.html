@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SV5 Tuần 2 - 30 Sản Phẩm (Biên Tập SP), Đánh Giá 5 Sao & Wishlist</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #f5f7fa; color: #1f2937; }
+    header {
+      background: #0f766e; color: #fff; padding: 16px 24px;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    header h1 { margin: 0; font-size: 18px; }
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    input[type="text"], select, textarea {
+      padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;
+    }
+    .btn {
+      padding: 8px 14px; border: none; border-radius: 8px; cursor: pointer;
+      font-weight: 600; font-size: 14px; transition: 0.15s;
+    }
+    .btn-wishlist-toggle { background: #fff; color: #0f766e; }
+    .btn-wishlist-toggle.active { background: #fee2e2; color: #b91c1c; }
+    .btn-primary { background: #0f766e; color: #fff; }
+    .btn-primary:hover { background: #115e59; }
+    .btn-outline { background: #f3f4f6; color: #374151; }
+    .btn-outline:hover { background: #e5e7eb; }
+    .container { max-width: 1220px; margin: 20px auto; padding: 0 16px; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 12px; margin-bottom: 18px; background: #fff; padding: 14px; border-radius: 12px;
+    }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(275px, 1fr)); gap: 16px;
+    }
+    .card {
+      background: #fff; border-radius: 12px; padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .thumb {
+      height: 165px; background: #f0fdfa; border-radius: 8px; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+    }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .thumb-fallback {
+      display: none; text-align: center; color: #0f766e; font-size: 13px; padding: 10px;
+    }
+    .discount-tag {
+      position: absolute; top: 8px; left: 8px; background: #dc2626; color: #fff;
+      font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px;
+    }
+    .heart-btn {
+      position: absolute; top: 8px; right: 8px; width: 34px; height: 34px;
+      border-radius: 50%; border: none; background: #fff; cursor: pointer;
+      font-size: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .badge {
+      display: inline-block; font-size: 12px; padding: 3px 8px; border-radius: 999px;
+      background: #ccfbf1; color: #115e59; font-weight: 600; margin-bottom: 6px;
+    }
+    .sku { font-size: 12px; color: #6b7280; font-family: monospace; }
+    .title { font-size: 15px; font-weight: 700; margin: 4px 0 6px; line-height: 1.35; }
+    .desc {
+      font-size: 13px; color: #4b5563; line-height: 1.45; margin-bottom: 10px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+    .price { color: #dc2626; font-weight: 700; font-size: 16px; }
+    .old-price { color: #9ca3af; text-decoration: line-through; font-size: 13px; }
+    .rating-summary { font-size: 13px; color: #4b5563; margin-bottom: 12px; }
+    .stars-gold { color: #f59e0b; font-weight: 700; }
+    .card-actions { display: flex; gap: 8px; }
+    .card-actions .btn { flex: 1; font-size: 13px; padding: 8px 10px; }
+
+    /* Modal chi tiết & đánh giá */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 14px; max-width: 560px; width: 100%;
+      max-height: 90vh; overflow-y: auto; padding: 20px;
+    }
+    .policy-box {
+      background: #f0fdfa; border-left: 3px solid #0f766e; padding: 10px 12px;
+      font-size: 13px; color: #115e59; border-radius: 6px; margin: 10px 0 14px;
+    }
+    .star-picker { display: flex; gap: 6px; font-size: 26px; cursor: pointer; margin: 4px 0 10px; }
+    .star-picker span { color: #d1d5db; }
+    .star-picker span.selected { color: #f59e0b; }
+    .review-item { border-top: 1px solid #e5e7eb; padding: 10px 0; font-size: 14px; }
+    .review-meta { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>SV5 - 30 Sản Phẩm (Biên Tập SP), Đánh Giá 5 Sao & Wishlist</h1>
+  <div class="header-actions">
+    <input type="text" id="searchInput" placeholder="Tìm mã SP, tên kính, hãng..." />
+    <select id="categoryFilter">
+      <option value="ALL">Tất cả danh mục (30)</option>
+      <option value="Gọng kính">Gọng kính (9)</option>
+      <option value="Tròng kính">Tròng kính (8)</option>
+      <option value="Kính mát">Kính mát (7)</option>
+      <option value="Kính áp tròng">Kính áp tròng (6)</option>
+    </select>
+    <button id="wishlistFilterBtn" class="btn btn-wishlist-toggle">
+      ❤️ Yêu thích (<span id="wishlistCount">0</span>)
+    </button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="toolbar">
+    <div>Hiển thị <strong id="visibleCount">30</strong> / 30 sản phẩm từ <code>Biên tập sp.xlsx</code></div>
+    <div style="font-size: 13px; color: #4b5563;">
+      Wishlist & Đánh giá 5 sao tự động lưu qua <code>localStorage</code>
+    </div>
+  </div>
+  <div class="grid" id="productGrid"></div>
+</div>
+
+<!-- Modal Chi Tiết & Đánh Giá 5 Sao -->
+<div class="modal-backdrop" id="reviewModal">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+      <div>
+        <div id="modalProductSku" class="sku"></div>
+        <h3 id="modalProductTitle" style="margin:2px 0 0; font-size:17px;">Chi tiết & Đánh giá sản phẩm</h3>
+      </div>
+      <button class="btn btn-outline" onclick="closeReviewModal()">Đóng</button>
+    </div>
+
+    <p id="modalProductDesc" style="font-size:13.5px; color:#374151; line-height:1.5; margin:10px 0;"></p>
+    <div id="modalProductPolicy" class="policy-box"></div>
+    <p id="modalRatingStats" style="font-size:13px; font-weight:600; color:#0f766e; margin:6px 0 12px;"></p>
+
+    <form id="reviewForm" style="display:flex; flex-direction:column; gap:10px; background:#f9fafb; padding:12px; border-radius:10px;">
+      <label style="font-size:13px; font-weight:600;">Đánh giá của bạn (1 - 5 sao):</label>
+      <div class="star-picker" id="starPicker">
+        <span data-star="1" class="selected">★</span>
+        <span data-star="2" class="selected">★</span>
+        <span data-star="3" class="selected">★</span>
+        <span data-star="4" class="selected">★</span>
+        <span data-star="5" class="selected">★</span>
+      </div>
+      <input type="text" id="reviewerName" placeholder="Tên của bạn (VD: Minh Anh)" required />
+      <textarea id="reviewComment" rows="3" placeholder="Nhận xét về chất lượng sản phẩm..." required></textarea>
+      <button type="submit" class="btn btn-primary">Gửi đánh giá 5 sao</button>
+    </form>
+
+    <h4 style="margin:16px 0 8px; font-size:15px;">Bình luận & Đánh giá đã gửi</h4>
+    <div id="reviewList"></div>
+  </div>
+</div>
+
+<script>
+  // =========================================================
+  // 1. DỮ LIỆU 30 SẢN PHẨM CHUẨN TỪ FILE "Biên tập sp.xlsx"
+  // =========================================================
+  const PRODUCTS = [
+    {"id": 1, "sku": "GK-POV-01", "name": "Gọng Kính POVINO AT1951", "category": "Gọng kính", "brand": "POVINO", "originalPrice": 1100000, "price": 770000, "discountPercent": 30, "description": "Gọng kính chính hãng đến từ thương hiệu POVINO với phong cách trẻ trung, hiện đại và dễ tiếp cận. Thiết kế giúp cố định tròng kính ổn định, hỗ trợ thị lực tốt và mang lại cảm giác đeo thoải mái trong sinh hoạt hằng ngày.", "policy": "Cam kết chính hãng 100%, bảo hành lỗi kỹ thuật 12 tháng (1 đổi 1), đổi trả trong 7 ngày và miễn phí vệ sinh, nắn chỉnh kính trọn đời.", "image": "Public/Images/Products/GK-POV-01.webp"},
+    {"id": 2, "sku": "GK-LEV-02", "name": "Gọng kính LEVIUS 83713", "category": "Gọng kính", "brand": "LEVIUS", "originalPrice": 650000, "price": 455000, "discountPercent": 30, "description": "Mẫu gọng kính nằm trong phân khúc giá dưới 500k, phù hợp cho học sinh, sinh viên và người đi làm cần một chiếc gọng dễ dùng hằng ngày. Sản phẩm giúp giữ tròng kính chắc chắn và hạn chế bụi bẩn tác động nhẹ từ môi trường bên ngoài.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi kỹ thuật 1 đổi 1, đổi trả 7 ngày.", "image": "Public/Images/Products/GK-LEV-02.webp"},
+    {"id": 3, "sku": "GK-LEV-03", "name": "Gọng kính LEVIUS 76103", "category": "Gọng kính", "brand": "LEVIUS", "originalPrice": 950000, "price": 665000, "discountPercent": 30, "description": "Gọng kính chính hãng thuộc phân khúc 500k – 1 triệu, đáp ứng tốt cả nhu cầu lắp tròng điều chỉnh thị lực lẫn làm phụ kiện định hình phong cách cá nhân. Kiểu dáng gọn gàng, tạo cảm giác ổn định khi đeo liên tục nhiều giờ.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi kỹ thuật 1 đổi 1, đổi trả 7 ngày.", "image": "Public/Images/Products/GK-LEV-03.webp"},
+    {"id": 4, "sku": "GK-SEE-04", "name": "Gọng kính SEESON The Layered 02", "category": "Gọng kính", "brand": "SEESON", "originalPrice": null, "price": 2600000, "discountPercent": 0, "description": "Thuộc dòng gọng kính mang phong cách hiện đại, tinh gọn của thương hiệu SEESON. Thiết kế chú trọng vào độ hoàn thiện, giúp tôn lên đường nét gương mặt và tạo điểm nhấn chỉn chu cho người đeo.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi 1 đổi 1, hỗ trợ đổi trả trong 7 ngày và bảo trì vệ sinh kính trọn đời.", "image": "Public/Images/Products/GK-SEE-04.webp"},
+    {"id": 5, "sku": "GK-JIL-05", "name": "Gọng kính JILL STUART JL33104", "category": "Gọng kính", "brand": "JILL STUART", "originalPrice": 2900000, "price": 2610000, "discountPercent": 10, "description": "Mẫu gọng kính thời trang cao cấp với đường nét tinh tế, thanh lịch, giúp làm nổi bật diện mạo hằng ngày. Phù hợp để lắp tròng cận, viễn, loạn hoặc dùng làm kính thời trang không độ.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi 1 đổi 1, đổi trả trong 7 ngày.", "image": "Public/Images/Products/GK-JIL-05.webp"},
+    {"id": 6, "sku": "GK-MIR-06", "name": "Gọng kính Miraflex 0MF4011", "category": "Gọng kính", "brand": "MIRAFLEX", "originalPrice": 1390000, "price": 1112000, "discountPercent": 20, "description": "Gọng kính chuyên biệt hướng đến tiêu chí bền, nhẹ và an toàn cao khi sử dụng. Thiết kế mang lại sự thoải mái tối đa, phù hợp cho người thường xuyên vận động hoặc trẻ em cần chiếc gọng chịu va đập tốt.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi 1 đổi 1, đổi trả trong 7 ngày.", "image": "Public/Images/Products/GK-MIR-06.webp"},
+    {"id": 7, "sku": "TK-ECO-07", "name": "Tròng kính ECOLITE FSV 1.56", "category": "Tròng kính", "brand": "ECOLITE", "originalPrice": 282000, "price": 225000, "discountPercent": 20, "description": "Dòng tròng đơn tròng phổ thông với chiết suất 1.56, hỗ trợ một vùng nhìn chính cho người bị cận, viễn hoặc loạn thị. Sản phẩm dễ làm quen và đáp ứng tốt nhu cầu học tập, làm việc hằng ngày với chi phí hợp lý.", "policy": "Cam kết chính hãng 100%, trả vỏ bao tròng minh bạch và hỗ trợ thay đổi độ miễn phí 01 lần trong 30 ngày cho kính đơn tròng đủ điều kiện.", "image": "Public/Images/Products/TK-ECO-07.webp"},
+    {"id": 8, "sku": "TK-CHE-08", "name": "Tròng kính Chemi Crystal U2 Coated 1.56", "category": "Tròng kính", "brand": "Chemi", "originalPrice": 336000, "price": 269000, "discountPercent": 20, "description": "Tròng đơn tròng chiết suất 1.56 tích hợp lớp phủ Crystal U2 Coated giúp cải thiện chất lượng tầm nhìn và dễ vệ sinh bề mặt tròng. Phù hợp cho các nhu cầu chỉnh tật khúc xạ thông thường hằng ngày.", "policy": "Chính hãng 100%, bảo hành theo tiêu chuẩn hãng Chemi, đổi trả 7 ngày.", "image": "Public/Images/Products/TK-CHE-08.webp"},
+    {"id": 9, "sku": "TK-HOY-09", "name": "Tròng kính HOYA STELLIFY 1.55 HVP", "category": "Tròng kính", "brand": "HOYA", "originalPrice": 580000, "price": 522000, "discountPercent": 10, "description": "Tròng kính đơn tròng đến từ thương hiệu Nhật Bản HOYA, sở hữu chiết suất 1.55 cùng lớp phủ Hi-Vision Protect (HVP) giúp giảm phản xạ và tăng độ bền bề mặt tròng khi sử dụng hằng ngày.", "policy": "Chính hãng 100%, minh bạch bao bì và thông số sản phẩm, bảo hành theo quy định của hãng.", "image": "Public/Images/Products/TK-HOY-09.webp"},
+    {"id": 10, "sku": "TK-CHE-10", "name": "Tròng kính đổi màu Chemi U2 ASP Photogray (Xám)", "category": "Tròng kính", "brand": "Chemi", "originalPrice": 828000, "price": 662400, "discountPercent": 20, "description": "Dòng tròng kính đổi màu sang sắc khói xám (Photogray) khi tiếp xúc với điều kiện ánh sáng ngoài trời phù hợp. Mang lại sự tiện lợi cho người thường xuyên di chuyển giữa môi trường trong nhà và ngoài trời mà không cần thay đổi kính liên tục.", "policy": "Chính hãng 100%, đo mắt miễn phí quy trình 12 bước và bảo hành chính hãng.", "image": "Public/Images/Products/TK-CHE-10.webp"},
+    {"id": 11, "sku": "TK-CHE-11", "name": "Tròng kính Chemi Perfect UV Crystal U6 Coated 1.60", "category": "Tròng kính", "brand": "Chemi", "originalPrice": 872000, "price": 698000, "discountPercent": 20, "description": "Tròng kính chiết suất 1.60 giúp tối ưu độ dày tròng tốt hơn so với chiết suất 1.56, đồng thời tích hợp lớp phủ Perfect UV Crystal U6 hỗ trợ lọc một phần dải ánh sáng xanh theo thiết kế của hãng.", "policy": "Chính hãng 100%, trả vỏ bao tròng xác thực, bảo hành lớp phủ theo chính sách của hãng.", "image": "Public/Images/Products/TK-CHE-11.webp"},
+    {"id": 12, "sku": "KM-POV-12", "name": "Kính mát POVINO GMS656TS", "category": "Kính mát", "brand": "POVINO", "originalPrice": 1079000, "price": 863200, "discountPercent": 20, "description": "Mẫu kính râm có thiết kế trẻ trung, dễ đeo và không kén khuôn mặt. Sản phẩm giúp mắt cảm thấy dễ chịu hơn khi đi nắng, phù hợp sử dụng linh hoạt khi đi làm, đi chơi hoặc dạo phố hằng ngày.", "policy": "Chính hãng 100%, bảo hành lỗi kỹ thuật 12 tháng (1 đổi 1), đổi trả trong 7 ngày.", "image": "Public/Images/Products/KM-POV-12.webp"},
+    {"id": 13, "sku": "KM-SEE-13", "name": "Kính mát SEESON The Vertebra 04 Sunglasses", "category": "Kính mát", "brand": "SEESON", "originalPrice": null, "price": 2700000, "discountPercent": 0, "description": "Kính mát mang phong cách tối giản, gọn gàng và trẻ trung đặc trưng của SEESON. Thiết kế dễ phối cùng nhiều loại trang phục thường ngày, tạo điểm nhấn nhẹ nhàng và hài hòa cho gương mặt.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi 1 đổi 1, đổi trả 7 ngày.", "image": "Public/Images/Products/KM-SEE-13.webp"},
+    {"id": 14, "sku": "KM-MOL-14", "name": "Kính mát Molsion Indie MM8001", "category": "Kính mát", "brand": "Molsion", "originalPrice": 3480000, "price": 3132000, "discountPercent": 10, "description": "Thuộc bộ sưu tập MOLSION-BOLON FW2026 với thiết kế năng động, trẻ trung và giàu tính thời trang. Sản phẩm mang lại cảm giác đeo thoải mái, tự nhiên trong các hoạt động ngoài trời và du lịch.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi 1 đổi 1, miễn phí vệ sinh và nắn chỉnh kính trọn đời.", "image": "Public/Images/Products/KM-MOL-14.webp"},
+    {"id": 15, "sku": "KM-BOL-15", "name": "Kính mát Bolon IRIS BX7012", "category": "Kính mát", "brand": "Bolon", "originalPrice": 3980000, "price": 3582000, "discountPercent": 10, "description": "Mẫu kính mát cao cấp thuộc bộ sưu tập MOLSION-BOLON FW2026, nổi bật với vẻ ngoài sang trọng, chỉn chu và tinh tế. Dễ dàng kết hợp với nhiều phong cách trang phục từ thanh lịch đến hiện đại.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi 1 đổi 1, đổi trả trong 7 ngày.", "image": "Public/Images/Products/KM-BOL-15.webp"},
+    {"id": 16, "sku": "KM-MIR-16", "name": "Kính mát Miraflex 0MF1041", "category": "Kính mát", "brand": "MIRAFLEX", "originalPrice": 1911600, "price": 1529280, "discountPercent": 20, "description": "Dòng kính mát chú trọng độ bền, trọng lượng nhẹ và sự an toàn khi đeo ngoài trời. Phù hợp cho nhu cầu bảo vệ mắt khỏi ánh sáng mạnh khi di chuyển hoặc tham gia hoạt động ngoài trời.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi kỹ thuật 1 đổi 1, đổi trả 7 ngày.", "image": "Public/Images/Products/KM-MIR-16.webp"},
+    {"id": 17, "sku": "AT-SOF-17", "name": "Kính áp tròng Soflens Daily 1 ngày (30 chiếc/hộp)", "category": "Kính áp tròng", "brand": "Soflens", "originalPrice": null, "price": 850000, "discountPercent": 0, "description": "Kính áp tròng sử dụng 1 ngày rồi bỏ sau một lần đeo, mang lại sự tiện lợi, sạch sẽ và không tốn thời gian vệ sinh, ngâm lens. Phù hợp với người bận rộn, người mới bắt đầu đeo lens hoặc người chỉ dùng vào những dịp đặc biệt.", "policy": "Sản phẩm chính hãng 100%, thông tin thông số và hạn sử dụng minh bạch, tư vấn đo mắt miễn phí.", "image": "Public/Images/Products/AT-SOF-17.webp"},
+    {"id": 18, "sku": "AT-SOF-18", "name": "Kính áp tròng Soflens 59 1 tháng (6 chiếc/hộp)", "category": "Kính áp tròng", "brand": "Soflens", "originalPrice": null, "price": 480000, "discountPercent": 0, "description": "Dòng lens cận sử dụng định kỳ 1 tháng giúp tiết kiệm chi phí cho người có nhu cầu đeo kính áp tròng hằng ngày. Thiết kế bám sát bề mặt mắt cho góc nhìn rộng, tự nhiên và không vướng víu khi vận động hay chơi thể thao.", "policy": "Chính hãng 100%, hỗ trợ tư vấn cách đeo, tháo và bảo quản với dung dịch chuyên dụng.", "image": "Public/Images/Products/AT-SOF-18.webp"},
+    {"id": 19, "sku": "AT-FRE-19", "name": "Kính áp tròng FreshKon Alluring Eyes 3 tháng (2 chiếc/hộp)", "category": "Kính áp tròng", "brand": "FreshKon", "originalPrice": null, "price": 280000, "discountPercent": 0, "description": "Kính áp tròng có hạn sử dụng 3 tháng kể từ khi mở nắp, vừa hỗ trợ cải thiện thị lực vừa giúp tăng tính thẩm mỹ cho đôi mắt. Mang lại cảm giác gọn nhẹ, linh hoạt trong học tập, làm việc và trang điểm.", "policy": "Chính hãng 100%, bảo hành lỗi kỹ thuật 1 đổi 1 theo quy định sản phẩm, đổi trả trong 7 ngày.", "image": "Public/Images/Products/AT-FRE-19.webp"},
+    {"id": 20, "sku": "AT-FRE-20", "name": "Kính áp tròng FreshVue Color Fancy 3 tháng (2 chiếc/hộp)", "category": "Kính áp tròng", "brand": "FreshVue", "originalPrice": null, "price": 195000, "discountPercent": 0, "description": "Dòng lens màu thời trang thời hạn dùng 3 tháng với mức giá dễ tiếp cận, giúp người dùng dễ dàng thay đổi phong cách đôi mắt theo từng dịp. Có tùy chọn độ cận hoặc không độ đáp ứng đa dạng nhu cầu sử dụng.", "policy": "Chính hãng 100%, tư vấn chọn thông số phù hợp và hướng dẫn chăm sóc lens an toàn.", "image": "Public/Images/Products/AT-FRE-20.webp"},
+    {"id": 21, "sku": "GK-LEV-21", "name": "Gọng kính LEVIUS 75209", "category": "Gọng kính", "brand": "LEVIUS", "originalPrice": 650000, "price": 455000, "discountPercent": 30, "description": "Mẫu gọng kính chính hãng nằm trong phân khúc giá dưới 500k, phù hợp cho học sinh, sinh viên và người đi làm cần một chiếc gọng gọn nhẹ, dễ dùng hằng ngày. Thiết kế khung gọng chắc chắn giúp cố định tròng kính ổn định, hỗ trợ tốt cho nhu cầu điều chỉnh thị lực.", "policy": "Cam kết chính hãng 100%, bảo hành 12 tháng lỗi kỹ thuật 1 đổi 1, đổi trả trong 7 ngày và miễn phí vệ sinh, nắn chỉnh kính trọn đời.", "image": "Public/Images/Products/GK-LEV-21.webp"},
+    {"id": 22, "sku": "GK-SEE-22", "name": "Gọng kính SEESON The Set Square 02", "category": "Gọng kính", "brand": "SEESON", "originalPrice": null, "price": 2600000, "discountPercent": 0, "description": "Mẫu gọng kính mang phong cách hiện đại, tối giản và tinh gọn đặc trưng của thương hiệu SEESON. Form dáng vuông vức hài hòa giúp tạo điểm nhấn sắc nét, chỉn chu cho gương mặt khi sử dụng hằng ngày hoặc đi làm.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi 1 đổi 1, hỗ trợ đổi trả trong 7 ngày và bảo trì vệ sinh, nắn chỉnh kính trọn đời.", "image": "Public/Images/Products/GK-SEE-22.webp"},
+    {"id": 23, "sku": "GK-JIL-23", "name": "Gọng kính JILL STUART JL33105", "category": "Gọng kính", "brand": "JILL STUART", "originalPrice": 2900000, "price": 2610000, "discountPercent": 10, "description": "Mẫu gọng kính thời trang cao cấp với đường nét thanh lịch, tinh tế giúp tôn lên vẻ ngoài cuốn hút và nhẹ nhàng. Sản phẩm dễ dàng kết hợp cùng nhiều phong cách trang phục, phù hợp lắp tròng có độ hoặc dùng làm kính thời trang.", "policy": "Chính hãng 100%, bảo hành 12 tháng lỗi kỹ thuật 1 đổi 1, đổi trả trong 7 ngày và miễn phí vệ sinh kính trọn đời.", "image": "Public/Images/Products/GK-JIL-23.webp"},
+    {"id": 24, "sku": "TK-CHE-24", "name": "Tròng kính Chemi Crystal U1 Coated 1.56", "category": "Tròng kính", "brand": "Chemi", "originalPrice": 282000, "price": 225600, "discountPercent": 20, "description": "Dòng tròng đơn tròng chiết suất 1.56 phổ thông đến từ thương hiệu Chemi, tích hợp lớp phủ Crystal U1 Coated giúp hỗ trợ một vùng nhìn chính rõ nét cho người bị cận, viễn hoặc loạn thị thông thường. Dễ làm quen và có mức chi phí tiết kiệm cho nhu cầu học tập, làm việc hằng ngày.", "policy": "Cam kết chính hãng 100%, trả vỏ bao tròng minh bạch, đo mắt miễn phí quy trình 12 bước và hỗ trợ thay đổi độ miễn phí 01 lần trong 30 ngày cho kính đơn tròng đủ điều kiện.", "image": "Public/Images/Products/TK-CHE-24.webp"},
+    {"id": 25, "sku": "TK-ELE-25", "name": "Tròng kính Elements Blue UV Cut", "category": "Tròng kính", "brand": "Elements", "originalPrice": 490000, "price": 392000, "discountPercent": 20, "description": "Dòng tròng kính tích hợp tính năng lọc một phần dải ánh sáng xanh và chống tia UV theo thiết kế của hãng. Phù hợp cho người thường xuyên làm việc với màn hình máy tính, điện thoại hoặc di chuyển ngoài trời muốn kết hợp chỉnh độ và bảo vệ thị lực hằng ngày.", "policy": "Chính hãng 100%, minh bạch thông số và bao bì sản phẩm, bảo hành 12 tháng lỗi kỹ thuật theo quy định của hãng.", "image": "Public/Images/Products/TK-ELE-25.webp"},
+    {"id": 26, "sku": "TK-KOD-26", "name": "Tròng kính Kodak FSV UV400", "category": "Tròng kính", "brand": "Kodak", "originalPrice": 530000, "price": 424000, "discountPercent": 20, "description": "Tròng kính đơn tròng đến từ thương hiệu Kodak (Mỹ) với chiết suất 1.56, hỗ trợ chống tia UV400 và cải thiện độ trong suốt của tầm nhìn trong sinh hoạt hằng ngày. Cấu hình gọn nhẹ, dễ thích nghi cho nhiều đối tượng người dùng.", "policy": "Chính hãng 100%, trả vỏ bao tròng xác thực, bảo hành chính hãng và hỗ trợ kiểm tra, căn chỉnh kính sau mua.", "image": "Public/Images/Products/TK-KOD-26.webp"},
+    {"id": 27, "sku": "KM-POV-27", "name": "Kính mát POVINO NN107", "category": "Kính mát", "brand": "POVINO", "originalPrice": 1150000, "price": 920000, "discountPercent": 20, "description": "Mẫu kính râm thuộc thương hiệu POVINO có mức giá dễ tiếp cận, thiết kế trẻ trung, dễ đeo và không kén khuôn mặt. Giúp mắt cảm thấy dễ chịu hơn khi di chuyển dưới trời nắng, phù hợp sử dụng linh hoạt khi đi làm, dạo phố hoặc du lịch.", "policy": "Cam kết chính hãng 100%, bảo hành 12 tháng lỗi kỹ thuật 1 đổi 1, đổi trả trong 7 ngày và miễn phí vệ sinh, nắn chỉnh kính trọn đời.", "image": "Public/Images/Products/KM-POV-27.webp"},
+    {"id": 28, "sku": "KM-SEE-28", "name": "Kính mát SEESON The Ruler 03 Sunglasses", "category": "Kính mát", "brand": "SEESON", "originalPrice": null, "price": 2900000, "discountPercent": 0, "description": "Thiết kế kính mát mang tinh thần tối giản, gọn gàng và trẻ trung của SEESON. Đường nét hiện đại dễ phối hợp với trang phục thường ngày, vừa giúp giảm chói khi ra nắng vừa tạo điểm nhấn hài hòa cho tổng thể gương mặt.", "policy": "Chính hãng 100%, bảo hành lỗi kỹ thuật 12 tháng (1 đổi 1), đổi trả 7 ngày và miễn phí bảo trì trọn đời tại 9 chi nhánh Mắt Kính Tâm Đức.", "image": "Public/Images/Products/KM-SEE-28.webp"},
+    {"id": 29, "sku": "AT-FRE-29", "name": "Kính áp tròng FreshVue Color Nature 3 tháng (2 chiếc/hộp)", "category": "Kính áp tròng", "brand": "FreshVue", "originalPrice": null, "price": 195000, "discountPercent": 0, "description": "Dòng kính áp tròng màu thời trang có thời hạn sử dụng 3 tháng kể từ khi mở nắp, mang lại sắc màu tự nhiên và tăng tính thẩm mỹ cho đôi mắt. Sản phẩm gọn nhẹ, không gây vướng víu khi học tập, làm việc hay trang điểm với mức giá dễ tiếp cận.", "policy": "Sản phẩm chính hãng 100%, nguồn gốc và hạn sử dụng minh bạch, hỗ trợ đo mắt miễn phí và tư vấn cách đeo, bảo quản an toàn.", "image": "Public/Images/Products/AT-FRE-29.webp"},
+    {"id": 30, "sku": "AT-FRE-30", "name": "Kính áp tròng FreshVue 55 UV 3 tháng (6 chiếc/hộp)", "category": "Kính áp tròng", "brand": "FreshVue", "originalPrice": null, "price": 480000, "discountPercent": 0, "description": "Kính áp tròng cận định kỳ 3 tháng đóng gói hộp 6 chiếc tiện lợi, phù hợp cho người có nhu cầu đeo lens thường xuyên. Thiết kế thấu kính mỏng ôm sát bề mặt mắt giúp mở rộng góc nhìn tự nhiên và thoải mái khi vận động, chơi thể thao.", "policy": "Chính hãng 100%, bảo hành lỗi kỹ thuật 1 đổi 1 theo quy định sản phẩm, đổi trả trong 7 ngày và tư vấn chọn độ cận phù hợp.", "image": "Public/Images/Products/AT-FRE-30.webp"}
+  ];
+
+  // =========================================================
+  // 2. QUẢN LÝ WISHLIST & ĐÁNH GIÁ 5 SAO (LOCALSTORAGE)
+  // =========================================================
+  const WISHLIST_KEY = "eyewear_sv5_wishlist_v2";
+  const REVIEWS_KEY = "eyewear_sv5_reviews_v2";
+
+  let wishlist = JSON.parse(localStorage.getItem(WISHLIST_KEY) || "[]");
+  let reviewsMap = JSON.parse(localStorage.getItem(REVIEWS_KEY) || "{}");
+  let showOnlyWishlist = false;
+  let activeProductId = null;
+  let selectedStars = 5;
+
+  if (Object.keys(reviewsMap).length === 0) {
+    reviewsMap = {
+      1: [{ author: "Phạm Phú", stars: 5, comment: "Gọng đeo nhẹ, form ôm mặt rất đẹp.", date: "2026-11-15" }],
+      7: [{ author: "Hải Yến", stars: 5, comment: "Tròng sáng rõ, giá hợp lý cho sinh viên.", date: "2026-11-18" }]
+    };
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(reviewsMap));
+  }
+
+  function formatVND(value) {
+    if (value == null) return "Liên hệ";
+    return value.toLocaleString("vi-VN") + "₫";
+  }
+
+  function getRatingSummary(productId) {
+    const list = reviewsMap[productId] || [];
+    if (list.length === 0) return { avg: 0, count: 0, list: [] };
+    const total = list.reduce((sum, r) => sum + r.stars, 0);
+    return { avg: (total / list.length).toFixed(1), count: list.length, list };
+  }
+
+  function toggleWishlist(productId) {
+    if (wishlist.includes(productId)) {
+      wishlist = wishlist.filter(id => id !== productId);
+    } else {
+      wishlist.push(productId);
+    }
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+    renderProducts();
+  }
+
+  function handleImgError(imgEl, sku) {
+    if (!imgEl.dataset.triedJpg) {
+      imgEl.dataset.triedJpg = "1";
+      imgEl.src = imgEl.src.replace(".webp", ".jpg");
+      return;
+    }
+    imgEl.style.display = "none";
+    imgEl.nextElementSibling.style.display = "block";
+  }
+
+  function renderProducts() {
+    const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
+    const cat = document.getElementById("categoryFilter").value;
+    const grid = document.getElementById("productGrid");
+
+    document.getElementById("wishlistCount").textContent = wishlist.length;
+    const wlBtn = document.getElementById("wishlistFilterBtn");
+    wlBtn.classList.toggle("active", showOnlyWishlist);
+
+    const filtered = PRODUCTS.filter(p => {
+      const matchKeyword =
+        p.name.toLowerCase().includes(keyword) ||
+        p.brand.toLowerCase().includes(keyword) ||
+        p.sku.toLowerCase().includes(keyword);
+      const matchCat = cat === "ALL" || p.category === cat;
+      const matchWl = !showOnlyWishlist || wishlist.includes(p.id);
+      return matchKeyword && matchCat && matchWl;
+    });
+
+    document.getElementById("visibleCount").textContent = filtered.length;
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; background:#fff; border-radius:12px;">
+        Không tìm thấy sản phẩm phù hợp.
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(p => {
+      const isLiked = wishlist.includes(p.id);
+      const { avg, count } = getRatingSummary(p.id);
+      const starDisplay = count > 0
+        ? `<span class="stars-gold">★ ${avg}/5</span> (${count} đánh giá)`
+        : `<span>Chưa có đánh giá</span>`;
+
+      return `
+        <div class="card">
+          <div>
+            <div class="thumb">
+              ${p.discountPercent > 0 ? `<span class="discount-tag">-${p.discountPercent}%</span>` : ""}
+              <img src="${p.image}" alt="${p.name}" onerror="handleImgError(this, '${p.sku}')" />
+              <div class="thumb-fallback"><strong>${p.sku}</strong><br/>${p.brand} · ${p.category}</div>
+              <button class="heart-btn" title="Lưu vào yêu thích" onclick="toggleWishlist(${p.id})">
+                ${isLiked ? "❤️" : "🤍"}
+              </button>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="badge">${p.category} · ${p.brand}</span>
+              <span class="sku">${p.sku}</span>
+            </div>
+            <div class="title">${p.name}</div>
+            <div class="desc">${p.description}</div>
+            <div class="price-row">
+              <span class="price">${formatVND(p.price)}</span>
+              ${p.originalPrice ? `<span class="old-price">${formatVND(p.originalPrice)}</span>` : ""}
+            </div>
+            <div class="rating-summary">${starDisplay}</div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-outline" onclick="openReviewModal(${p.id})">
+              ⭐ Đánh giá (5 sao)
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function openReviewModal(productId) {
+    activeProductId = productId;
+    const product = PRODUCTS.find(p => p.id === productId);
+    document.getElementById("modalProductSku").textContent = `${product.sku} · ${product.category} · ${product.brand}`;
+    document.getElementById("modalProductTitle").textContent = product.name;
+    document.getElementById("modalProductDesc").textContent = product.description;
+    document.getElementById("modalProductPolicy").textContent = "Chính sách: " + product.policy;
+    selectedStars = 5;
+    updateStarPickerUI();
+    renderModalReviews();
+    document.getElementById("reviewModal").classList.add("open");
+  }
+
+  function closeReviewModal() {
+    document.getElementById("reviewModal").classList.remove("open");
+    activeProductId = null;
+  }
+
+  function updateStarPickerUI() {
+    document.querySelectorAll("#starPicker span").forEach(el => {
+      const val = Number(el.getAttribute("data-star"));
+      el.classList.toggle("selected", val <= selectedStars);
+    });
+  }
+
+  function renderModalReviews() {
+    const { avg, count, list } = getRatingSummary(activeProductId);
+    document.getElementById("modalRatingStats").textContent = count > 0
+      ? `Điểm trung bình: ${avg}/5 sao (${count} lượt đánh giá)`
+      : "Chưa có đánh giá nào. Hãy gửi đánh giá đầu tiên bên dưới!";
+
+    const listEl = document.getElementById("reviewList");
+    if (list.length === 0) {
+      listEl.innerHTML = `<p style="color:#6b7280; font-size:13px;">Chưa có bình luận.</p>`;
+      return;
+    }
+
+    listEl.innerHTML = list.map(r => `
+      <div class="review-item">
+        <div class="review-meta">
+          <strong>${r.author}</strong> · <span class="stars-gold">${"★".repeat(r.stars)}${"☆".repeat(5 - r.stars)}</span> · ${r.date}
+        </div>
+        <div>${r.comment}</div>
+      </div>
+    `).join("");
+  }
+
+  document.querySelectorAll("#starPicker span").forEach(el => {
+    el.addEventListener("click", () => {
+      selectedStars = Number(el.getAttribute("data-star"));
+      updateStarPickerUI();
+    });
+  });
+
+  document.getElementById("reviewForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!activeProductId) return;
+    const author = document.getElementById("reviewerName").value.trim();
+    const comment = document.getElementById("reviewComment").value.trim();
+    if (!author || !comment) return;
+
+    const current = reviewsMap[activeProductId] || [];
+    reviewsMap[activeProductId] = [
+      { author, stars: selectedStars, comment, date: new Date().toISOString().slice(0, 10) },
+      ...current
+    ];
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(reviewsMap));
+
+    document.getElementById("reviewerName").value = "";
+    document.getElementById("reviewComment").value = "";
+    renderModalReviews();
+    renderProducts();
+  });
+
+  document.getElementById("searchInput").addEventListener("input", renderProducts);
+  document.getElementById("categoryFilter").addEventListener("change", renderProducts);
+  document.getElementById("wishlistFilterBtn").addEventListener("click", () => {
+    showOnlyWishlist = !showOnlyWishlist;
+    renderProducts();
+  });
+
+  renderProducts();
+</script>
+</body>
+</html>
