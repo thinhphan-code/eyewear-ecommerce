@@ -82,7 +82,7 @@ Hệ thống website thương mại điện tử bán mắt kính trực tuyến
 
 ### 1. Tải Mã Nguồn (Clone Repository)
 ```bash
-git clone <URL_REPOSITORY_CUA_NHOM>
+git clone <https://github.com/thinhphan-code/eyewear-ecommerce.git>
 cd eyewear-ecommerce
 ```
 
